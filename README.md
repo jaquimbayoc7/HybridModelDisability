@@ -1,5 +1,7 @@
 # 🧬 Hybrid Profiling API for Patients with Disabilities 🤖
 
+[![Live API](https://img.shields.io/badge/API-Live-brightgreen)](https://hybridmodeldisability.onrender.com/docs)
+
 This repository contains the source code for a RESTful API developed with FastAPI for patient management and disability profile classification using a hybrid Machine Learning model.
 
 ## 🔍 Overview
@@ -120,21 +122,24 @@ The API will be available at `http://127.0.0.1:8000`.
 
 The easiest way to explore and test the API is through the interactive documentation.
 
--   **Swagger UI:** [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
--   **ReDoc:** [http://127.0.0.1:8000/redoc](http://127.0.0.1:8000/redoc)
+-   **Live API Docs:** [**https://hybridmodeldisability.onrender.com/docs**](https://hybridmodeldisability.onrender.com/docs)
+-   **Local Swagger UI:** `http://127.0.0.1:8000/docs`
+-   **Local ReDoc:** `http://127.0.0.1:8000/redoc`
 
 ### Basic Workflow
 
 1.  **Register a physician:** Use the `POST /users/register` endpoint.
 2.  **Log in:** Use `POST /users/login` with the physician's email and password to get an `access_token`.
-3.  **Authorize:** In the Swagger UI, click the "Authorize" button and paste the token in the format `Bearer <your_token>`.
+3.  **Authorize:** In the interactive documentation, click the "Authorize" button and paste the token in the format `Bearer <your_token>`.
 4.  **Manage Patients:** You can now use all `/patients` endpoints to create, read, update, delete, and predict patient profiles.
 
 ### Example with `curl`
 
+*(Note: You can replace `http://127.0.0.1:8000` with the live URL `https://hybridmodeldisability.onrender.com` in these examples)*
+
 1.  **Login and get token:**
     ```bash
-    curl -X POST "http://127.0.0.1:8000/users/login" \
+    curl -X POST "https://hybridmodeldisability.onrender.com/users/login" \
          -H "Content-Type: application/x-www-form-urlencoded" \
          -d "username=physician@example.com&password=password123"
     ```
@@ -143,7 +148,7 @@ The easiest way to explore and test the API is through the interactive documenta
     ```bash
     TOKEN="your_access_token_here"
 
-    curl -X POST "http://127.0.0.1:8000/patients/" \
+    curl -X POST "https://hybridmodeldisability.onrender.com/patients/" \
          -H "Authorization: Bearer $TOKEN" \
          -H "Content-Type: application/json" \
          -d '{
