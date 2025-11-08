@@ -66,7 +66,7 @@ class User(BaseModel):
     is_active: bool
     role: Role
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 # --- PATIENT ---
 class PatientBase(BaseModel):
@@ -111,7 +111,7 @@ class Patient(PatientBase):
     prediction_profile: Optional[int] = None
     prediction_description: Optional[str] = None
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class PredictionResponse(BaseModel):
     patient_id: int

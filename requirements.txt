@@ -5,6 +5,7 @@ joblib
 pandas
 numpy
 python-jose[cryptography]
-passlib[bcrypt]
+passlib          <-- LÍNEA MODIFICADA
+bcrypt==3.2.0    <-- LÍNEA AÑADIDA
 python-multipart
 email-validator
