@@ -1,6 +1,6 @@
 # app/schemas.py
 
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 from typing import Optional, List
 from datetime import date
 from enum import Enum
@@ -32,8 +32,7 @@ class User(UserBase):
     is_active: bool
     role: Role
 
-    class Config:
-        from_attributes = True  # Cambio aquí
+    model_config = ConfigDict(from_attributes=True)
 
 class UserStatusUpdate(BaseModel):
     is_active: bool
@@ -65,11 +64,11 @@ class PatientUpdate(PatientBase):
 
 class Patient(PatientBase):
     id: int
+    owner_id: int
     prediction_profile: Optional[int] = None
     prediction_description: Optional[str] = None
 
-    class Config:
-        from_attributes = True  # Cambio aquí
+    model_config = ConfigDict(from_attributes=True)
 
 class PredictionInput(BaseModel):
     edad: int
@@ -83,6 +82,8 @@ class PredictionInput(BaseModel):
     nivel_d5: int
     nivel_d6: int
     nivel_global: int
+
+    model_config = ConfigDict(from_attributes=True)
 
 class PredictionOutput(BaseModel):
     profile: int
