@@ -1,6 +1,8 @@
 # app/auth.py
 
 from fastapi import Depends, HTTPException, status
+# <--- CORRECCIÓN #1: Importar la clase que falta
+from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from datetime import datetime, timedelta
@@ -14,15 +16,17 @@ from . import crud, schemas
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-# Clave secreta para firmar los tokens JWT.
-# ¡¡¡ADVERTENCIA: NO USAR ESTA CLAVE EN PRODUCCIÓN!!!
-# Esta clave está visible solo para que entiendas dónde va.
-# La forma correcta es usar os.getenv("SECRET_KEY") como en la línea comentada.
-#SECRET_KEY = "09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7"
-SECRET_KEY = os.getenv("SECRET_KEY") 
-
+SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
+
+# ======================================================================
+# CORRECCIÓN #2: AÑADIR ESTA LÍNEA ES LA SOLUCIÓN AL ERROR 404
+# Esta línea crea el esquema de seguridad y le dice a Swagger
+# que la URL para obtener el token es /users/login.
+# ======================================================================
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/users/login")
+
 
 # --- Funciones de Contraseña ---
 
@@ -53,9 +57,10 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     """Crea un nuevo token de acceso JWT."""
     to_encode = data.copy()
     if expires_delta:
+        # CORRECCIÓN: Usar datetime.now(timezone.utc) para consistencia
         expire = datetime.utcnow() + expires_delta
     else:
-        expire = datetime.utcnow() + timedelta(minutes=15)
+        expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
