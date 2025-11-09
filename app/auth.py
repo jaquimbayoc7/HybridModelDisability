@@ -1,27 +1,62 @@
 # app/auth.py
-from passlib.context import CryptContext
+
+from fastapi import Depends, HTTPException, status
 from jose import JWTError, jwt
+from passlib.context import CryptContext
 from datetime import datetime, timedelta
+from sqlalchemy.orm import Session
 import os
 
-# --- CONFIGURACIÓN ---
-# Usa una variable de entorno para la clave secreta en producción
-SECRET_KEY = os.getenv("SECRET_KEY", "una_clave_secreta_muy_dificil_de_adivinar_para_desarrollo")
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+# Imports para la función de autenticación
+from . import crud, schemas
+
+# --- Configuración de Seguridad ---
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-# --- FUNCIONES ---
-def verify_password(plain_password: str, hashed_password: str) -> bool:
+# Clave secreta para firmar los tokens JWT.
+# ¡¡¡ADVERTENCIA: NO USAR ESTA CLAVE EN PRODUCCIÓN!!!
+# Esta clave está visible solo para que entiendas dónde va.
+# La forma correcta es usar os.getenv("SECRET_KEY") como en la línea comentada.
+#SECRET_KEY = "09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7"
+SECRET_KEY = os.getenv("SECRET_KEY") 
+
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
+
+# --- Funciones de Contraseña ---
+
+def verify_password(plain_password, hashed_password):
+    """Verifica que una contraseña en texto plano coincida con su versión hasheada."""
     return pwd_context.verify(plain_password, hashed_password)
 
-def get_password_hash(password: str) -> str:
+def get_password_hash(password):
+    """Genera el hash de una contraseña en texto plano."""
     return pwd_context.hash(password)
 
-def create_access_token(data: dict) -> str:
+# --- Función de Autenticación de Usuario ---
+
+def authenticate_user(db: Session, email: str, password: str):
+    """
+    Autentica a un usuario. Devuelve el objeto de usuario si es exitoso, si no, None.
+    """
+    user = crud.get_user_by_email(db, email=email)
+    if not user:
+        return None
+    if not verify_password(password, user.hashed_password):
+        return None
+    return user
+
+# --- Funciones de Token JWT ---
+
+def create_access_token(data: dict, expires_delta: timedelta | None = None):
+    """Crea un nuevo token de acceso JWT."""
     to_encode = data.copy()
-    expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    if expires_delta:
+        expire = datetime.utcnow() + expires_delta
+    else:
+        expire = datetime.utcnow() + timedelta(minutes=15)
+    
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
