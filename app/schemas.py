@@ -1,11 +1,13 @@
 # app/schemas.py
 
-from pydantic import BaseModel, ConfigDict, EmailStr, Field
-from typing import Optional, List
+from pydantic import BaseModel, EmailStr, Field, ConfigDict
+from typing import Optional
 from datetime import date
 from enum import Enum
 
-# --- Esquemas de Token ---
+class Role(str, Enum):
+    admin = "admin"
+    medico = "médico"
 
 class Token(BaseModel):
     access_token: str
@@ -14,35 +16,27 @@ class Token(BaseModel):
 class TokenData(BaseModel):
     email: Optional[str] = None
 
-# --- Esquemas de Usuario ---
-
-class Role(str, Enum):
-    admin = "admin"
-    physician = "médico"
-
 class UserBase(BaseModel):
     email: EmailStr
     full_name: str
 
 class UserCreate(UserBase):
     password: str
+    role: Role
 
 class User(UserBase):
     id: int
     is_active: bool
     role: Role
-
     model_config = ConfigDict(from_attributes=True)
 
 class UserStatusUpdate(BaseModel):
     is_active: bool
 
-# --- Esquemas de Paciente ---
-
 class PatientBase(BaseModel):
     nombre_apellidos: str
     fecha_nacimiento: date
-    edad: int = Field(..., gt=0, description="La edad debe ser mayor que cero")
+    edad: int = Field(..., gt=0)
     genero: str
     orientacion_sexual: str
     causa_deficiencia: str
@@ -67,7 +61,6 @@ class Patient(PatientBase):
     owner_id: int
     prediction_profile: Optional[int] = None
     prediction_description: Optional[str] = None
-
     model_config = ConfigDict(from_attributes=True)
 
 class PredictionInput(BaseModel):
@@ -82,7 +75,6 @@ class PredictionInput(BaseModel):
     nivel_d5: int
     nivel_d6: int
     nivel_global: int
-
     model_config = ConfigDict(from_attributes=True)
 
 class PredictionOutput(BaseModel):
