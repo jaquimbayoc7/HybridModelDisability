@@ -18,7 +18,7 @@ class TokenData(BaseModel):
 
 class Role(str, Enum):
     admin = "admin"
-    physician = "physician"
+    physician = "médico"
 
 class UserBase(BaseModel):
     email: EmailStr
