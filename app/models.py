@@ -1,5 +1,7 @@
 # app/models.py
-from sqlalchemy import Column, Integer, String, Boolean, Date, Float
+
+from sqlalchemy import Boolean, Column, Integer, String, Date, ForeignKey
+from sqlalchemy.orm import relationship
 from .database import Base
 
 class User(Base):
@@ -10,7 +12,11 @@ class User(Base):
     full_name = Column(String)
     hashed_password = Column(String)
     is_active = Column(Boolean, default=True)
-    role = Column(String)
+    role = Column(String, default="médico")
+
+    # <--- CORRECCIÓN #1: Se añade la relación inversa
+    # Esto permite acceder a user.patients para ver todos los pacientes de un usuario
+    patients = relationship("Patient", back_populates="owner")
 
 class Patient(Base):
     __tablename__ = "patients"
@@ -31,5 +37,17 @@ class Patient(Base):
     nivel_d5 = Column(Integer)
     nivel_d6 = Column(Integer)
     nivel_global = Column(Integer)
+    
     prediction_profile = Column(Integer, nullable=True)
     prediction_description = Column(String, nullable=True)
+
+    # ======================================================================
+    # CORRECCIÓN #2: ESTA ES LA SOLUCIÓN PRINCIPAL
+    # Se añade la columna 'owner_id' como una clave foránea que apunta
+    # a la columna 'id' de la tabla 'users'.
+    # ======================================================================
+    owner_id = Column(Integer, ForeignKey("users.id"))
+
+    # <--- CORRECCIÓN #3: Se establece la relación
+    # Esto permite acceder a patient.owner para ver el objeto User del médico dueño
+    owner = relationship("User", back_populates="patients")
