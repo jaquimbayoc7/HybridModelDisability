@@ -104,16 +104,42 @@ def predict_patient_profile(
     """
     db_patient = read_patient(patient_id, db, current_user)
 
+    # Convierte el objeto de la base de datos a un esquema Pydantic y luego a un DataFrame
     prediction_data = schemas.PredictionInput.model_validate(db_patient)
     input_df = pd.DataFrame([prediction_data.model_dump()])
     
+    # --- SOLUCIÓN AL ERROR DE COLUMNAS ---
+    # Mapeo de los nombres de columna de la API (snake_case) a los que el modelo espera (PascalCase)
+    column_mapping = {
+        'edad': 'Edad',
+        'genero': 'Genero',
+        'orientacion_sexual': 'Orientacion_Sexual',
+        'causa_deficiencia': 'Causa_Deficiencia',
+        'cat_fisica': 'Cat_Fisica',
+        'cat_psicosocial': 'Cat_Psicosocial',
+        'nivel_d1': 'Nivel_D1',
+        'nivel_d2': 'Nivel_D2',
+        'nivel_d3': 'Nivel_D3',
+        'nivel_d4': 'Nivel_D4',
+        'nivel_d5': 'Nivel_D5',
+        'nivel_d6': 'Nivel_D6',
+        'nivel_global': 'Nivel_Global'
+    }
+    
+    # Renombra las columnas del DataFrame
+    input_df_renamed = input_df.rename(columns=column_mapping)
+
     try:
-        prediction = model.predict(input_df)
+        # Ejecuta la predicción con el DataFrame corregido
+        prediction = model.predict(input_df_renamed)
         profile = int(prediction[0, 0])
         description = str(prediction[0, 1])
     except Exception as e:
+        # Captura cualquier error inesperado durante la predicción
         raise HTTPException(status_code=500, detail=f"Error durante la ejecución del modelo: {e}")
 
+    # Guarda el resultado de la predicción en la base de datos
     crud.update_patient_prediction(db, patient_id=patient_id, profile=profile, description=description)
 
+    # Devuelve el resultado
     return {"profile": profile, "description": description}
