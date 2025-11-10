@@ -66,6 +66,8 @@ class Patient(PatientBase):
 class PredictionInput(BaseModel):
     edad: int
     genero: str
+    orientacion_sexual: str
+    causa_deficiencia: str
     cat_fisica: str
     cat_psicosocial: str
     nivel_d1: int
