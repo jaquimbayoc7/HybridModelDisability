@@ -10,7 +10,7 @@ Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title="API de Perfilamiento de Discapacidad v3.1",
-    description="API para la gestión de pacientes y predicción de perfiles de discapacidad.",
+    description="API para la gestión de pacientes y predicción de perfiles de discapacidad. Desarrollado por:\n Ing. Julián Andres Quimbayo Castro - Ing. Jose Miguel Llanos Mosquera - Ing. Cindy Vargas Duque y Est. Willians Aguilar Rodriguez",
     version="3.1.0",
 )
 
