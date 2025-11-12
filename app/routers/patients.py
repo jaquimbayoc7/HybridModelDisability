@@ -35,9 +35,28 @@ def read_patient(patient_id: int, db: Session = Depends(dependencies.get_db), cu
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="No tiene permiso para acceder a este paciente")
     return db_patient
 @router.put("/{patient_id}", response_model=schemas.Patient)
-def update_patient_details(patient_id: int, patient_update: schemas.PatientUpdate, db: Session = Depends(dependencies.get_db), current_user: models.User = Depends(dependencies.get_current_active_medico)):
-    db_patient = read_patient(patient_id, db, current_user)
-    return crud.update_patient(db=db, patient_id=db_patient.id, patient_update=patient_update)
+def update_patient_details(
+    patient_id: int,
+    patient_update: schemas.PatientUpdate,
+    db: Session = Depends(dependencies.get_db),
+    current_user: models.User = Depends(dependencies.get_current_active_medico)
+):
+    """
+    Actualiza los detalles de un paciente específico.
+    Solo el médico propietario puede actualizar su paciente.
+    """
+    db_patient = crud.get_patient(db, patient_id=patient_id)
+    if db_patient is None:
+        raise HTTPException(status_code=404, detail="Paciente no encontrado")
+    
+    # Verificación de propiedad
+    if db_patient.owner_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Operación no permitida. No eres el propietario de este paciente.")
+
+    # --- LÍNEA CORREGIDA ---
+    # Se pasa el objeto `db_patient` completo, no el `patient_id`.
+    return crud.update_patient(db=db, db_patient=db_patient, patient_update=patient_update)
+
 @router.delete("/{patient_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_patient_record(patient_id: int, db: Session = Depends(dependencies.get_db), current_user: models.User = Depends(dependencies.get_current_active_medico)):
     db_patient = read_patient(patient_id, db, current_user)
