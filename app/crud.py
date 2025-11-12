@@ -34,8 +34,9 @@ def update_user_activity(db: Session, user_id: int, is_active: bool):
         db.refresh(db_user)
     return db_user
 
-def get_patient_by_id(db: Session, patient_id: int):
+def get_patient(db: Session, patient_id: int):
     return db.query(models.Patient).filter(models.Patient.id == patient_id).first()
+
 
 def get_patients_by_owner(db: Session, owner_id: int, skip: int = 0, limit: int = 100):
     return db.query(models.Patient).filter(models.Patient.owner_id == owner_id).offset(skip).limit(limit).all()
