@@ -185,3 +185,5 @@ This project is configured for easy deployment on **Render**.
 
 -   **Julian Andres Quimbayo Castro** - [julian.quimbayo@corhuila.edu.co](mailto:julian.quimbayo@corhuila.edu.co)
 -   **Willians Aguilar Rodriguez** - [waguilar-2021a@corhuila.edu.co](mailto:waguilar-2021a@corhuila.edu.co)
+-   **Jose Miguel Llanos Mosquera** - [jmllanosm@corhuila.edu.co](mailto:jmllanosm@corhuila.edu.co)
+-   **Cindy Vargas Duque** - [sistemas@corhuila.edu.co](mailto:sistemas@corhuila.edu.co)
