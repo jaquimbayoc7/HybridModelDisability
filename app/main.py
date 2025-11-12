@@ -4,6 +4,7 @@ from fastapi import FastAPI
 from .database import engine, Base, SessionLocal
 from .routers import users, patients, admin
 from . import crud, schemas
+from fastapi.middleware.cors import CORSMiddleware
 
 # Esta línea crea las tablas si no existen.
 Base.metadata.create_all(bind=engine)
@@ -12,6 +13,16 @@ app = FastAPI(
     title="API de Perfilamiento de Discapacidad v3.1",
     description="API para la gestión de pacientes y predicción de perfiles de discapacidad. Desarrollado por:\n Ing. Julián Andres Quimbayo Castro - Ing. Jose Miguel Llanos Mosquera - Ing. Cindy Vargas Duque y Est. Willians Aguilar Rodriguez",
     version="1.0",
+)
+
+
+# Agregar CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # En producción, especifica los dominios permitidos
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 @app.on_event("startup")
