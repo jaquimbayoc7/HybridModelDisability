@@ -58,9 +58,31 @@ def update_patient_details(
     return crud.update_patient(db=db, db_patient=db_patient, patient_update=patient_update)
 
 @router.delete("/{patient_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_patient_record(patient_id: int, db: Session = Depends(dependencies.get_db), current_user: models.User = Depends(dependencies.get_current_active_medico)):
-    db_patient = read_patient(patient_id, db, current_user)
-    crud.delete_patient(db=db, patient_id=db_patient.id)
+def delete_patient(
+    patient_id: int,
+    db: Session = Depends(dependencies.get_db),
+    current_user: models.User = Depends(dependencies.get_current_active_medico)
+):
+    """
+    Elimina un paciente específico.
+    Solo el médico propietario puede eliminar su paciente.
+    """
+    # --- LÍNEA CORREGIDA ---
+    # Cambiamos get_patient_by_id por la función correcta: get_patient
+    db_patient = crud.get_patient(db, patient_id=patient_id)
+    
+    if db_patient is None:
+        raise HTTPException(status_code=404, detail="Paciente no encontrado")
+    
+    # Verificación de propiedad
+    if db_patient.owner_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Operación no permitida. No eres el propietario de este paciente.")
+
+    # Si todo está bien, procedemos a eliminar
+    db.delete(db_patient)
+    db.commit()
+    
+    # Devolvemos una respuesta sin contenido, como indica el código de estado 204
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
