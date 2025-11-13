@@ -57,14 +57,14 @@ def update_patient(db: Session, db_patient: models.Patient, patient_update: sche
     return db_patient
 
 def delete_patient(db: Session, patient_id: int):
-    db_patient = get_patient_by_id(db, patient_id)
+    db_patient = get_patient(db, patient_id)
     if db_patient:
         db.delete(db_patient)
         db.commit()
     return db_patient
 
 def update_patient_prediction(db: Session, patient_id: int, profile: int, description: str):
-    db_patient = get_patient_by_id(db, patient_id)
+    db_patient = get_patient(db, patient_id)
     if db_patient:
         db_patient.prediction_profile = profile
         db_patient.prediction_description = description
