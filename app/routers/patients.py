@@ -27,12 +27,26 @@ def create_patient(patient: schemas.PatientCreate, db: Session = Depends(depende
 def read_patients(skip: int = 0, limit: int = 100, db: Session = Depends(dependencies.get_db), current_user: models.User = Depends(dependencies.get_current_active_medico)):
     return crud.get_patients_by_owner(db=db, owner_id=current_user.id, skip=skip, limit=limit)
 @router.get("/{patient_id}", response_model=schemas.Patient)
-def read_patient(patient_id: int, db: Session = Depends(dependencies.get_db), current_user: models.User = Depends(dependencies.get_current_active_medico)):
-    db_patient = crud.get_patient_by_id(db, patient_id=patient_id)
+def read_patient(
+    patient_id: int,
+    db: Session = Depends(dependencies.get_db),
+    current_user: models.User = Depends(dependencies.get_current_active_medico)
+):
+    """
+    Obtiene los detalles de un paciente específico.
+    Solo el médico propietario puede ver su paciente.
+    """
+    # --- LÍNEA CORREGIDA ---
+    # Cambiamos get_patient_by_id por la función correcta: get_patient
+    db_patient = crud.get_patient(db, patient_id=patient_id)
+    
     if db_patient is None:
         raise HTTPException(status_code=404, detail="Paciente no encontrado")
+    
+    # Verificación de propiedad
     if db_patient.owner_id != current_user.id:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="No tiene permiso para acceder a este paciente")
+        raise HTTPException(status_code=403, detail="Operación no permitida. No eres el propietario de este paciente.")
+    
     return db_patient
 @router.put("/{patient_id}", response_model=schemas.Patient)
 def update_patient_details(
