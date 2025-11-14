@@ -38,7 +38,7 @@ def on_startup():
         admin_user = crud.get_user_by_email(db, email="admin@salud.co")
         if not admin_user:
             admin_in = schemas.UserCreate(
-                email="admin@salud.co",
+                email="admin2@salud.co",
                 password="adminpassword",
                 full_name="Administrador del Sistema",
                 role=schemas.Role.admin
