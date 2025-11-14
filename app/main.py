@@ -35,7 +35,7 @@ def on_startup():
     """Crea el usuario administrador por defecto al iniciar la aplicación si no existe."""
     db = SessionLocal()
     try:
-        admin_user = crud.get_user_by_email(db, email="admin@salud.co")
+        admin_user = crud.get_user_by_email(db, email="admin2@salud.co")
         if not admin_user:
             admin_in = schemas.UserCreate(
                 email="admin2@salud.co",
