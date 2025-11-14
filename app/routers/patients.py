@@ -11,8 +11,6 @@ from .. import schemas, crud, dependencies, models
 
 router = APIRouter()
 
-
-
 MODEL_PATH = os.path.join(os.path.dirname(__file__), '..', '..', 'model', 'model_pipeline.joblib')
 try:
     model = joblib.load(MODEL_PATH)
