@@ -1,7 +1,7 @@
 # app/routers/patients.py
 
 from fastapi import APIRouter, Depends, HTTPException, status, Response
-from typing import List
+from typing import List, Optional
 from sqlalchemy.orm import Session
 import pandas as pd
 import joblib
@@ -12,10 +12,32 @@ from .. import schemas, crud, dependencies, models
 router = APIRouter()
 
 MODEL_PATH = os.path.join(os.path.dirname(__file__), '..', '..', 'model', 'model_pipeline.joblib')
-try:
-    model = joblib.load(MODEL_PATH)
-except FileNotFoundError:
-    raise RuntimeError(f"El archivo del modelo no se encontró en la ruta: {MODEL_PATH}.")
+
+# Variable global para almacenar el modelo (cargado lazily)
+_model = None
+
+def get_model():
+    """
+    Carga el modelo de manera perezosa (lazy loading).
+    Se carga la primera vez que se necesita en un endpoint.
+    """
+    global _model
+    
+    if _model is not None:
+        return _model
+    
+    if not os.path.exists(MODEL_PATH):
+        raise RuntimeError(
+            f"⚠️ El archivo del modelo no se encontró en: {MODEL_PATH}\n"
+            "Por favor, ejecuta: python model/train_model.py"
+        )
+    
+    try:
+        _model = joblib.load(MODEL_PATH)
+        print(f"✓ Modelo cargado desde: {MODEL_PATH}")
+        return _model
+    except Exception as e:
+        raise RuntimeError(f"Error al cargar el modelo: {e}")
 
 # ... (Los endpoints GET, POST, PUT, DELETE se quedan exactamente igual) ...
 @router.post("/", response_model=schemas.Patient, status_code=status.HTTP_201_CREATED)
@@ -110,13 +132,11 @@ def predict_patient_profile(
     # Convertimos los datos a un DataFrame. Los nombres de las columnas
     # ('edad', 'genero', etc.) ya coinciden con lo que el nuevo modelo espera.
     input_df = pd.DataFrame([prediction_data.model_dump()])
-    
-    # ======================================================================
-    # ¡YA NO SE NECESITA EL DICCIONARIO DE MAPEO!
-    # El nuevo modelo entiende directamente las columnas del DataFrame.
-    # ======================================================================
 
     try:
+        # Cargar el modelo cuando se necesite
+        model = get_model()
+        
         # Pasamos el DataFrame directamente al modelo.
         prediction = model.predict(input_df)
         profile = int(prediction[0]) # La predicción ahora es un array simple
@@ -129,6 +149,8 @@ def predict_patient_profile(
         }
         description = descriptions.get(profile, "Perfil no determinado")
 
+    except RuntimeError as e:
+        raise HTTPException(status_code=503, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error durante la ejecución del modelo: {e}")
 

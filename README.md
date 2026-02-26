@@ -170,14 +170,40 @@ The easiest way to explore and test the API is through the interactive documenta
             }'
     ```
 
-## ☁️ Deployment
+## ☁️ Deployment on Render
 
-This project is configured for easy deployment on **Render**.
+This project is fully configured for deployment on **Render** (platform as a service).
 
--   **Build Command:** `pip install -r requirements.txt`
--   **Start Command:** `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
--   **Environment Variables:**
-    -   `SECRET_KEY`: A long, random secret key for signing JWTs.
+### Quick Start (Recommended)
+
+For detailed deployment instructions, see [RENDER_DEPLOYMENT.md](RENDER_DEPLOYMENT.md).
+
+### Key Points:
+- **Build Command:** `pip install -r requirements.txt && bash build.sh`
+- **Start Command:** `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+- **Runtime:** Python 3.11
+- **Required Environment Variables:**
+  - `SECRET_KEY`: Generate with `python -c "import secrets; print(secrets.token_urlsafe(32))"`
+  - `DATABASE_URL`: PostgreSQL connection string (provided by Render or your database)
+
+### Critical Configuration:
+
+1. **Use Internal Database URL**: Render PostgreSQL databases provide both internal and external URLs. **Always use the internal URL** (ending with `.internal`) in your Web Service.
+
+2. **Same Region**: Ensure your Web Service and PostgreSQL database are in the **same region** for optimal performance.
+
+3. **Automatic Initialization**: The build script automatically:
+   - Trains the ML model if it doesn't exist
+   - Creates database tables
+   - Initializes the default admin user
+
+### Troubleshooting:
+
+If you encounter connection errors:
+- Check `DATABASE_URL` format and that it uses the `.internal` domain
+- Verify both services are in the same region
+- Review Render logs: Dashboard → Web Service → Logs
+- Clear cache and redeploy: Dashboard → Web Service → Settings → "Clear Cache & Redeploy"
 
 ---
 

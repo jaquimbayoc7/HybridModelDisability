@@ -16,7 +16,20 @@ from . import crud, schemas
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-SECRET_KEY = os.getenv("SECRET_KEY")
+# CORRECCIÓN CRÍTICA: Se obtiene SECRET_KEY con un valor por defecto
+# En producción (Render), DEBE estar configurada como variable de entorno
+# En desarrollo, se usa una clave por defecto (NO SEGURA - solo para desarrollo)
+SECRET_KEY = os.getenv(
+    "SECRET_KEY",
+    "dev-secret-key-change-in-production-12345678901234567890"  # ⚠️ Solo para desarrollo
+)
+
+if SECRET_KEY.startswith("dev-secret-key"):
+    import warnings
+    warnings.warn(
+        "⚠️ Usando SECRET_KEY de desarrollo. En producción, configura la variable de entorno SECRET_KEY."
+    )
+
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
