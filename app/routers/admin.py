@@ -7,7 +7,6 @@ from sqlalchemy.orm import Session
 from .. import schemas, crud, dependencies, models
 
 router = APIRouter(
-    prefix="/admin",
     tags=["Admin"]
 )
 
