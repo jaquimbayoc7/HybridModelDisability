@@ -11,19 +11,8 @@ router = APIRouter(
     tags=["Admin"]
 )
 
-    skip: int = 0, 
-    limit: int = 100, 
-    db: Session = Depends(dependencies.get_db),
-    current_user: models.User = Depends(dependencies.get_current_active_admin)
-):
-    """Obtiene una lista de todos los usuarios. Solo para administradores."""
-    users = crud.get_users(db, skip=skip, limit=limit)
-    return users
-
-@router.post("/users/register", response_model=schemas.User, status_code=status.HTTP_201_CREATED)
-def create_user_by_admin(
-    user: schemas.UserCreate, 
-    db: Session = Depends(dependencies.get_db),
+@router.get("/users", response_model=List[schemas.User])
+def read_users(
     current_user: models.User = Depends(dependencies.get_current_active_admin)
 ):
     """Crea un nuevo usuario (médico o admin). Solo para administradores."""
