@@ -2,7 +2,7 @@ services:
   - type: web
     name: hybrid-disability-api
     runtime: python
-    pythonVersion: 3.11
+    pythonVersion: 3.11.10
     buildCommand: |
       pip install --upgrade pip
       pip install -r requirements.txt
@@ -10,7 +10,7 @@ services:
     startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
     envVars:
       - key: PYTHON_VERSION
-        value: 3.11.7
+        value: 3.11.10
       - key: DATABASE_URL
         fromDatabase:
           name: disability-api-db
